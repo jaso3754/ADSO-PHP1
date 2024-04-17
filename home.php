@@ -57,7 +57,7 @@
           }
         
         ?>
-        <form action="" method="post">
+        <form action="home.php" method="post">
             <div class="row g-3 align-items-center">
                 <div class="col-auto">
                     <label for="user" class="col-form-label">Codigo</label>
@@ -82,8 +82,9 @@
                 </div>
 
                 <div class="col-auto">
+                  <input type="hidden" name="cod_org" value="<?php echo $cod; ?>">
                     <label for="actualizar" class="col-form-label"></label><br>
-                    <button type="submit" class="btn btn-success" name="actualizar" id="actualizar"><i class="bi bi-plus-circle"></i> ACTUALIZAR</button>
+                    <button type="submit" class="btn btn-primary" name="actualizar" id="actualizar"><i class="bi bi-arrow-clockwise"></i> ACTUALIZAR</button>
                 </div>
                 
             </div>
@@ -99,6 +100,28 @@
             $conn->query($sql);
         }
 
+        if(isset($_POST["actualizar"])){
+
+          $sql = "SELECT * FROM producto WHERE codigo !='".$_POST["cod_org"]."' AND nombre= '".$_POST["nom"]."' ";
+          $res = $conn->query($sql);
+
+
+           if($res->num_rows == 0){
+              $sql ="UPDATE producto SET codigo= '".$_POST["cod"]."', nombre='".$_POST["nom"]."', cantidad='".$_POST["can"]."', precio='".$_POST["prc"]."' WHERE codigo = '".$_POST["cod_org"]."' ";
+              $conn->query($sql);
+            }else{
+              echo '
+                <script>
+                  alert("YA EXISTE UN PRODUCTO CON EL MISMO NOMBRE, ERROR...");
+
+
+                </script>
+              
+              ';
+            }
+       
+        }
+
           $sql = "SELECT * FROM producto ";
           $res = $conn->query($sql);
 
@@ -109,7 +132,8 @@
               <th>nombre</th>
               <th>cantidad</th>
               <th>precio</th>
-              <th>Tareas</th>
+              <th class="text-center">Actualizar</th>
+              <th class="text-center">Eliminar</th>
             </tr>
           ';
 
@@ -120,15 +144,23 @@
                 <td>'.$row[1].'  </td>
                 <td>'.$row[2].' KG </td>
                 <td>$'.$row[3].'  </td>
-                <td><a href="home.php?cod='.$row[0].'&nom='.$row[1].'&can='.$row[2].'&prc='.$row[3].'">Actualizar</a> | <a href="home.php">Eliminar</a> </td>
+                <td class="text-center"><a href="home.php?cod='.$row[0].'&nom='.$row[1].'&can='.$row[2].'&prc='.$row[3].'"><i class="bi bi-arrow-clockwise"></i></a> </td>
+            ';
+            ?>
+            <td class="text-center"><a href="home.php?cod_elm=<?php echo $row[0]; ?>" onclick="return confirm('¿Realmente deseas eliminar este elemento?')"><i class="bi bi-trash-fill"></i></a> </td>
+            <?php
+            echo '
               </tr>
             ';
           }
-          echo '</table>';
 
+          if(isset($_GET["cod_elm"])){
+            $sql = "DELETE FROM producto WHERE codigo= '".$_GET["cod_elm"]."'";
+            $conn->query($sql);
+          }
+          echo '</table>';
        ?>
     </div>
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>
